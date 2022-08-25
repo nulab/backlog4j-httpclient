@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.nulab-inc:backlog4j:2.5.1'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    testImplementation 'ch.qos.logback:logback-classic:1.2.11'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.10.0'
+}
+
+group = 'com.nulab-inc'
+version = '1.0-SNAPSHOT'
+description = 'backlog4j-httpclient'
+java.sourceCompatibility = JavaVersion.VERSION_11
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
