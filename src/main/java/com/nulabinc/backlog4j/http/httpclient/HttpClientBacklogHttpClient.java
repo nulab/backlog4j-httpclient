@@ -8,8 +8,6 @@ import com.nulabinc.backlog4j.api.option.QueryParams;
 import com.nulabinc.backlog4j.http.BacklogHttpClient;
 import com.nulabinc.backlog4j.http.BacklogHttpResponse;
 import com.nulabinc.backlog4j.http.NameValuePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -33,21 +31,30 @@ import java.util.stream.Collectors;
 
 public class HttpClientBacklogHttpClient implements BacklogHttpClient {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-
     private static final String PACKAGE_VERSION = Objects.requireNonNullElse(HttpClientBacklogHttpClient.class.getPackage().getImplementationVersion(), "-");
+
     private static final String DEFAULT_USER_AGENT = "backlog4j/" + PACKAGE_VERSION;
 
-    private final HttpClient httpClient;
+    private final HttpClient.Builder httpClientBuilder;
+
+    private HttpClient httpClient = null;
 
     private String userAgent = DEFAULT_USER_AGENT;
-    private String apiKey;
-    private String bearerToken;
-    private int readTimeout;
-    private boolean ignoreConnectionTimeoutWarning = false;
 
-    public HttpClientBacklogHttpClient(final HttpClient httpClient) {
-        this.httpClient = httpClient;
+    private String apiKey;
+
+    private String bearerToken;
+
+    private int connectionTimeout;
+
+    private int readTimeout;
+
+    public HttpClientBacklogHttpClient() {
+        this(HttpClient.newBuilder());
+    }
+
+    public HttpClientBacklogHttpClient(final HttpClient.Builder httpClientBuilder) {
+        this.httpClientBuilder = httpClientBuilder;
     }
 
     @Override
@@ -67,9 +74,7 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
 
     @Override
     public void setConnectionTimeout(int connectionTimeout) {
-        if (!this.ignoreConnectionTimeoutWarning) {
-            logger.warn("Tried to set the connection timeout to {}ms, but this operation is not supported. Please use HttpClient.Builder connectTimeout(Duration duration) instead of this property. And set true to the ignoreConnectionTimeoutWarning property for ignore this message.", connectionTimeout);
-        }
+        this.connectionTimeout = connectionTimeout;
     }
 
     @Override
@@ -85,6 +90,7 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
     @Override
     public BacklogHttpResponse get(final String endpoint, final GetParams getParams, final QueryParams queryParams) throws BacklogException {
         try {
+            final HttpClient httpClient = getHttpClient();
             final URIBuilder uriBuilder = new URIBuilder(endpoint)
                     .addParameter("apiKey", this.apiKey);
             if (getParams != null) {
@@ -109,6 +115,7 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
     @Override
     public BacklogHttpResponse post(final String endpoint, final List<NameValuePair> postParams, final List<NameValuePair> headers) throws BacklogException {
         try {
+            final HttpClient httpClient = getHttpClient();
             final URIBuilder uriBuilder = new URIBuilder(endpoint)
                     .addParameter("apiKey", this.apiKey);
             final HttpRequest request = newHttpRequestBuilder(headers)
@@ -128,6 +135,7 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
     @Override
     public BacklogHttpResponse patch(final String endpoint, final List<NameValuePair> patchParams, final List<NameValuePair> headers) throws BacklogException {
         try {
+            final HttpClient httpClient = getHttpClient();
             final URIBuilder uriBuilder = new URIBuilder(endpoint)
                     .addParameter("apiKey", this.apiKey);
             final HttpRequest request = newHttpRequestBuilder(headers)
@@ -147,6 +155,7 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
     @Override
     public BacklogHttpResponse put(final String endpoint, final List<NameValuePair> putParams) throws BacklogException {
         try {
+            final HttpClient httpClient = getHttpClient();
             final URIBuilder uriBuilder = new URIBuilder(endpoint)
                     .addParameter("apiKey", this.apiKey);
             final HttpRequest request = newHttpRequestBuilder()
@@ -166,6 +175,7 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
     @Override
     public BacklogHttpResponse delete(final String endpoint, final List<NameValuePair> deleteParams) throws BacklogException {
         try {
+            final HttpClient httpClient = getHttpClient();
             final URIBuilder uriBuilder = new URIBuilder(endpoint)
                     .addParameter("apiKey", this.apiKey);
             final HttpRequest request = newHttpRequestBuilder()
@@ -185,6 +195,7 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
     @Override
     public BacklogHttpResponse postMultiPart(final String endpoint, final Map<String, Object> postParams) throws BacklogException {
         try {
+            final HttpClient httpClient = getHttpClient();
             final URIBuilder uriBuilder = new URIBuilder(endpoint)
                     .addParameter("apiKey", this.apiKey);
             final String boundary = "*******";
@@ -286,8 +297,18 @@ public class HttpClientBacklogHttpClient implements BacklogHttpClient {
                 .collect(Collectors.joining("&")));
     }
 
-    public HttpClientBacklogHttpClient setIgnoreConnectionTimeoutWarning(final boolean ignoreConnectionTimeoutWarning) {
-        this.ignoreConnectionTimeoutWarning = ignoreConnectionTimeoutWarning;
-        return this;
+    private HttpClient getHttpClient() {
+        if (this.httpClient != null) {
+            return this.httpClient;
+        }
+        synchronized (this) {
+            if (this.httpClient != null) {
+                return this.httpClient;
+            }
+            this.httpClient = this.httpClientBuilder
+                    .connectTimeout(Duration.ofMillis(this.connectionTimeout))
+                    .build();
+            return this.httpClient;
+        }
     }
 }

@@ -10,9 +10,11 @@ repositories {
 
 dependencies {
     implementation 'com.nulab-inc:backlog4j:2.5.1'
-    implementation 'org.slf4j:slf4j-api:1.7.36'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
     testImplementation 'ch.qos.logback:logback-classic:1.2.11'
+    testImplementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
+    testImplementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.3'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.10.0'
 }
 
@@ -21,10 +23,81 @@ version = '1.0-SNAPSHOT'
 description = 'backlog4j-httpclient'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from(components.java)
-        }
+java {
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
+    withSourcesJar()
+    withJavadocJar()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+javadoc {
+    options.locale = 'en_US'
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+    title = 'Backlog4j ' + version + ' API'
+}
+
+jar {
+    manifest {
+        attributes('Implementation-Title': archivesBaseName,
+                'Implementation-Version': archiveVersion,
+                'Automatic-Module-Name': archiveBaseName)
     }
 }
+
+configurations {
+    deployerJars
+}
+
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//            pom {
+//                name = 'Backlog4j'
+//                description = 'Backlog4j is a Backlog binding library for Java.'
+//                url = 'https://github.com/nulab/backlog4j'
+//                scm {
+//                    connection = 'https://github.com/nulab/backlog4j.git'
+//                    developerConnection = 'https://github.com/nulab/backlog4j.git'
+//                    url = 'https://github.com/nulab/backlog4j.git'
+//                }
+//                licenses {
+//                    license {
+//                        name = 'MIT License'
+//                        url = 'http://www.opensource.org/licenses/mit-license.php'
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id = 'kimzo'
+//                        name = 'Yuh Kim'
+//                        email = 'kim@nulab.com'
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    repositories {
+//        maven {
+//            credentials {
+//                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
+//                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+//            }
+//            if (project.version.endsWith("-SNAPSHOT")) {
+//                url = "https://oss.sonatype.org/content/repositories/snapshots"
+//            } else {
+//                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+//            }
+//        }
+//    }
+//}
+//
+//signing {
+//    sign publishing.publications.mavenJava
+//}

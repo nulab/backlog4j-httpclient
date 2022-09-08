@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -63,8 +62,8 @@ class HttpClientBacklogHttpClientTest {
         this.mockWebServer.start();
 
         final BacklogConfigure configure = new MockWebServerBacklogConfigure(this.mockWebServer).apiKey(API_KEY);
-        final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(configure.getConnectionTimeout())).build();
-        final HttpClientBacklogHttpClient backlogHttpClient = new HttpClientBacklogHttpClient(httpClient).setIgnoreConnectionTimeoutWarning(true);
+        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder();
+        final HttpClientBacklogHttpClient backlogHttpClient = new HttpClientBacklogHttpClient(httpClientBuilder);
         this.backlogClient = new BacklogClientFactory(configure, backlogHttpClient).newClient();
     }
 
