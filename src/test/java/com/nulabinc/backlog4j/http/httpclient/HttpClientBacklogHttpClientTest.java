@@ -12,6 +12,7 @@ import com.nulabinc.backlog4j.Wiki;
 import com.nulabinc.backlog4j.api.option.CreateWikiParams;
 import com.nulabinc.backlog4j.api.option.UpdateWikiParams;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
+import com.nulabinc.backlog4j.http.BacklogHttpClient;
 import com.nulabinc.backlog4j.internal.file.AttachmentDataImpl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -63,7 +64,7 @@ class HttpClientBacklogHttpClientTest {
 
         final BacklogConfigure configure = new MockWebServerBacklogConfigure(this.mockWebServer).apiKey(API_KEY);
         final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder();
-        final HttpClientBacklogHttpClient backlogHttpClient = new HttpClientBacklogHttpClient(httpClientBuilder);
+        final BacklogHttpClient backlogHttpClient = new HttpClientBacklogHttpClient(httpClientBuilder);
         this.backlogClient = new BacklogClientFactory(configure, backlogHttpClient).newClient();
     }
 
