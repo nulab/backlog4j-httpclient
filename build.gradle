@@ -20,7 +20,7 @@ dependencies {
 }
 
 group = 'com.nulab-inc'
-version = '1.0-SNAPSHOT'
+version = '1.0.0'
 description = 'backlog4j-httpclient'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
