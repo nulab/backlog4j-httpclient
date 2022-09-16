@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'signing'
 }
 
 repositories {
@@ -53,51 +54,51 @@ configurations {
     deployerJars
 }
 
-//publishing {
-//    publications {
-//        mavenJava(MavenPublication) {
-//            from components.java
-//            pom {
-//                name = 'Backlog4j'
-//                description = 'Backlog4j is a Backlog binding library for Java.'
-//                url = 'https://github.com/nulab/backlog4j'
-//                scm {
-//                    connection = 'https://github.com/nulab/backlog4j.git'
-//                    developerConnection = 'https://github.com/nulab/backlog4j.git'
-//                    url = 'https://github.com/nulab/backlog4j.git'
-//                }
-//                licenses {
-//                    license {
-//                        name = 'MIT License'
-//                        url = 'http://www.opensource.org/licenses/mit-license.php'
-//                    }
-//                }
-//                developers {
-//                    developer {
-//                        id = 'kimzo'
-//                        name = 'Yuh Kim'
-//                        email = 'kim@nulab.com'
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    repositories {
-//        maven {
-//            credentials {
-//                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
-//                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
-//            }
-//            if (project.version.endsWith("-SNAPSHOT")) {
-//                url = "https://oss.sonatype.org/content/repositories/snapshots"
-//            } else {
-//                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-//            }
-//        }
-//    }
-//}
-//
-//signing {
-//    sign publishing.publications.mavenJava
-//}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Backlog4j Http Client'
+                description = 'It enables using Backlog4J with Java11 or later by providing an implementation of com.nulabinc.backlog4j.http.BacklogHttpClient using java.net.http.HttpClient'
+                url = 'https://github.com/nulab/backlog4j-httpclient'
+                scm {
+                    connection = 'https://github.com/nulab/backlog4j-httpclient.git'
+                    developerConnection = 'https://github.com/nulab/backlog4j-httpclient.git'
+                    url = 'https://github.com/nulab/backlog4j-httpclient.git'
+                }
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'http://www.opensource.org/licenses/mit-license.php'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'baba'
+                        name = 'Yasuyuki Baba'
+                        email = 'baba@nulab.com'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
+                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+            }
+            if (project.version.endsWith("-SNAPSHOT")) {
+                url = "https://oss.sonatype.org/content/repositories/snapshots"
+            } else {
+                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
